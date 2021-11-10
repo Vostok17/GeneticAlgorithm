@@ -13,6 +13,7 @@ namespace Genetic_algorithm
             graph.Fill(MIN, MAX);
             Console.WriteLine(graph.UndirectedLinesCount());
 
+
             Console.ReadKey();
         }
     }
