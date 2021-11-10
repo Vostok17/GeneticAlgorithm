@@ -6,7 +6,14 @@ namespace Genetic_algorithm
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            const int SIZE = 150;
+            const int MIN = 5, MAX = 50;
+
+            Graph graph = new Graph(SIZE);
+            graph.Fill(MIN, MAX);
+            Console.WriteLine(graph.UndirectedLinesCount());
+
+            Console.ReadKey();
         }
     }
 }

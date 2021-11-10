@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace traveling_salesman_problem
+namespace Genetic_algorithm
 {
     internal class Graph
     {
@@ -53,16 +53,51 @@ namespace traveling_salesman_problem
                 sw.WriteLine();
             }
         }
+        /// <summary>
+        /// Mixed filling. This means directed graph with some undirected lines.
+        /// </summary>
+        /// <param name="min"></param>
+        /// <param name="max"></param>
         public void Fill(int min, int max)
-        {
+        {          
+            // generate directed graph
             Random random = new Random();
+            for (int i = 0; i < Size; i++)
+            {
+                for (int j = 0; j < Size; j++)
+                {
+                    Matrix[i, j] = random.Next(min, max + 1);
+                }
+            }
+
+            const double PERCENT_OF_UNDIRECTED_LINES = 0.3;
+            int totalLines = Size * Size;
+            int undirectedLines = (int)(PERCENT_OF_UNDIRECTED_LINES * totalLines);
+
+            // change some directed lines to undirected
+            for (int k = 0; k < undirectedLines; k++)
+            {
+                int i = random.Next(Size);
+                int j = random.Next(Size);
+                Matrix[i, j] = Matrix[j, i] = random.Next(min, max + 1);
+            }
+        }
+        /// <summary>
+        /// Count of undirected lines in this graph.
+        /// </summary>
+        /// <returns>Undirected lines of total lines count.</returns>
+        public string UndirectedLinesCount()
+        {
+            int cnt = 0;
             for (int i = 0; i < Size; i++)
             {
                 for (int j = i + 1; j < Size; j++)
                 {
-                    Matrix[i, j] = Matrix[j, i] = random.Next(min, max + 1);
+                    if (Matrix[i, j] == Matrix[j, i]) cnt++;
                 }
             }
+            int totalLines = Size * Size;
+            return string.Format($"{cnt} undirected lines of {totalLines}");
         }
     }
 }
