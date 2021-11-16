@@ -13,6 +13,7 @@ namespace Genetic_algorithm
             graph.Fill(MIN, MAX);
             Console.WriteLine(graph.UndirectedLinesCount());
 
+            GeneticEngine engine = new GeneticEngine(graph); 
 
             Console.ReadKey();
         }
