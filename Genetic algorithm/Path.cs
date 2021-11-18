@@ -10,6 +10,12 @@ namespace Genetic_algorithm
     {
         public int[] Chromosome;
         public int Fitness;
+
+        public int this[int index]
+        {
+            get { return Chromosome[index]; }
+            set { Chromosome[index] = value; }
+        }
         public Path(int[] chromosome, Graph distance)
         {
             Chromosome = chromosome;
