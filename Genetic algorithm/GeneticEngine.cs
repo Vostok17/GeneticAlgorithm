@@ -9,13 +9,16 @@ namespace Genetic_algorithm
     internal class GeneticEngine
     {
         private Path[] generation;
-        private readonly int generationSize;
+        private const int generationSize = 100;
+        private readonly Graph distance;
         public GeneticEngine(Graph distance)
         {
-            generationSize = 1000;
-            generation = CreateGeneration(distance);
+            this.distance = distance;
+            generation = CreateGeneration();
+
+            Selection();
         }
-        private Path[] CreateGeneration(Graph distance)
+        private Path[] CreateGeneration()
         {
             Path[] generation = new Path[generationSize];
             int chromosomeLenght = distance.Size; // chromosome lenght is equal to num of cities
@@ -48,6 +51,79 @@ namespace Genetic_algorithm
 
             return chromosome;
         }
+        private void Selection()
+        {
+            int summary = 0;
+            foreach(Path path in generation)
+            {
+                summary += path.Fitness;
+            }
 
+            Random random = new();
+            for (int i = 0; i < generationSize; i++)
+            {
+                List<Path> parents = new();
+                for (int k = 0; k < 2; k++) // select two parents
+                {
+                    int randomNumber = random.Next(summary);
+                    int currentFitness = 0;
+                    foreach(Path path in generation)
+                    {
+                        currentFitness += path.Fitness;
+                        if (randomNumber < currentFitness)
+                        {
+                            parents.Add(path);
+                            break;
+                        }
+                    }
+                    
+                }
+                // create offspring
+                PartiallyMappedCrossover(parents[0], parents[1]);
+            }
+        }
+        private Path PartiallyMappedCrossover(Path father, Path mother)
+        {
+            int lenght = father.Chromosome.Length;
+
+            Random random = new();
+            int crossPoint1 = random.Next(0, lenght);
+            int crossPoint2 = random.Next(0, lenght);
+
+            if (crossPoint1 > crossPoint2)
+            {
+                int temp = crossPoint1;
+                crossPoint1 = crossPoint2;
+                crossPoint2 = temp;
+            }
+
+            int[] child = new int[lenght];
+            father.Chromosome.CopyTo(child, 0);
+
+            // map stores indexes of cities in child
+            // child[index] = city
+            // map[city] = index
+            int[] map = new int[lenght];
+            for (int i = 0; i < lenght; i++)
+            {
+                map[child[i]] = i;
+            }
+
+            for (int i = crossPoint1; i <= crossPoint2; i++)
+            {
+                int city = mother[i];
+                int indexOfCity = map[city];
+                // swap genes in the child
+                int temp = child[indexOfCity];
+                child[indexOfCity] = child[i];
+                child[i] = temp;
+                // swap indexes in the map 
+                temp = map[child[indexOfCity]]; 
+                map[child[indexOfCity]] = map[child[i]];
+                map[child[i]] = temp;
+            }
+
+            return new Path(child, distance);
+        }
     }
 }
