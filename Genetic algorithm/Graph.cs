@@ -59,45 +59,46 @@ namespace Genetic_algorithm
         /// <param name="min"></param>
         /// <param name="max"></param>
         public void Fill(int min, int max)
-        {          
-            // generate directed graph
-            Random random = new Random();
+        {
+            const int PROBABILITY_OF_UNDIRECTED_LINE = 35;
+            Random random = new();
             for (int i = 0; i < Size; i++)
             {
-                for (int j = 0; j < Size; j++)
+                for (int j = i + 1; j < Size; j++)
                 {
-                    Matrix[i, j] = random.Next(min, max + 1);
+                    if (random.Next(100) < PROBABILITY_OF_UNDIRECTED_LINE)
+                    {
+                        Matrix[i, j] = Matrix[j, i] = random.Next(min, max);
+                    }
+                    else
+                    {
+                        do
+                        {
+                            Matrix[i, j] = random.Next(min, max);
+                            Matrix[j, i] = random.Next(min, max);
+                        } while (Matrix[i, j] == Matrix[j, i]);
+                    }
                 }
             }
 
-            const double PERCENT_OF_UNDIRECTED_LINES = 0.3;
-            int totalLines = Size * Size;
-            int undirectedLines = (int)(PERCENT_OF_UNDIRECTED_LINES * totalLines);
-
-            // change some directed lines to undirected
-            for (int k = 0; k < undirectedLines; k++)
-            {
-                int i = random.Next(Size);
-                int j = random.Next(Size);
-                Matrix[i, j] = Matrix[j, i] = random.Next(min, max + 1);
-            }
         }
         /// <summary>
         /// Count of undirected lines in this graph.
         /// </summary>
         /// <returns>Undirected lines of total lines count.</returns>
-        public string UndirectedLinesCount()
+        public string UndirectedLinesPercentage()
         {
             int cnt = 0;
             for (int i = 0; i < Size; i++)
             {
                 for (int j = i + 1; j < Size; j++)
                 {
-                    if (Matrix[i, j] == Matrix[j, i]) cnt++;
+                    if (Matrix[i, j] == Matrix[j, i]) cnt += 2;
                 }
             }
-            int totalLines = Size * Size;
-            return string.Format($"{cnt} undirected lines of {totalLines}");
+            int totalLines = Size * (Size - 1);
+            double undirectedOfTotal = (double)cnt / totalLines;
+            return string.Format($"Percent of undirected lines: {undirectedOfTotal:p}");
         }
     }
 }
