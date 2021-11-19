@@ -53,34 +53,7 @@ namespace Genetic_algorithm
         }
         private void Selection()
         {
-            int summary = 0;
-            foreach(Path path in generation)
-            {
-                summary += path.Fitness;
-            }
-
-            Random random = new();
-            for (int i = 0; i < generationSize; i++)
-            {
-                List<Path> parents = new();
-                for (int k = 0; k < 2; k++) // select two parents
-                {
-                    int randomNumber = random.Next(summary);
-                    int currentFitness = 0;
-                    foreach(Path path in generation)
-                    {
-                        currentFitness += path.Fitness;
-                        if (randomNumber < currentFitness)
-                        {
-                            parents.Add(path);
-                            break;
-                        }
-                    }
-                    
-                }
-                // create offspring
-                PartiallyMappedCrossover(parents[0], parents[1]);
-            }
+            
         }
         private Path PartiallyMappedCrossover(Path father, Path mother)
         {
@@ -124,6 +97,27 @@ namespace Genetic_algorithm
             }
 
             return new Path(child, distance);
+        }
+        private Path RouletteWheelSelection()
+        {
+            int summary = 0;
+            foreach (Path path in generation)
+            {
+                summary += path.Fitness;
+            }
+            Random random = new();
+            
+            int randomNumber = random.Next(summary + 1);
+            int currFitness = 0;
+            foreach (Path path in generation)
+            {
+                currFitness += path.Fitness;
+                if (currFitness >= randomNumber)
+                {
+                    return path;
+                }
+            }
+            throw new Exception("No path was chosen in roulette wheel selection.");
         }
     }
 }
