@@ -72,14 +72,7 @@ namespace Genetic_algorithm
             int[] child = new int[lenght];
             father.Chromosome.CopyTo(child, 0);
 
-            // map stores indexes of cities in child
-            // child[index] = city
-            // map[city] = index
-            int[] map = new int[lenght];
-            for (int i = 0; i < lenght; i++)
-            {
-                map[child[i]] = i;
-            }
+            int[] map = Map(child);
 
             for (int i = crossPoint1; i <= crossPoint2; i++)
             {
@@ -97,7 +90,7 @@ namespace Genetic_algorithm
 
             return new Path(child, distance);
         }
-        private Path CycleCrossover(Path father, Path mother) // can give the same offspring for some parents
+        private Path CycleCrossover(Path father, Path mother)
         {
             int lenght = father.Chromosome.Length;
             int[] child = new int[lenght];
@@ -106,14 +99,7 @@ namespace Genetic_algorithm
                 child[k] = -1; // unused vertex
             }
 
-            // map stores indexes of cities in father
-            // father[index] = city
-            // map[city] = index
-            int[] map = new int[lenght];
-            for (int k = 0; k < lenght; k++)
-            {
-                map[father[k]] = k;
-            }
+            int[] map = Map(father.Chromosome);
 
             int i = 0;
             child[i] = father[i];
@@ -157,8 +143,8 @@ namespace Genetic_algorithm
             int pos = crossPoint2 + 1;
             foreach (int item in mother.Chromosome)
             {
-                int index = map[item];
-                if (index < crossPoint1 || index > crossPoint2)
+                int indexInFather = map[item];
+                if (indexInFather < crossPoint1 || indexInFather > crossPoint2)
                 {
                     child[pos] = item;
                     pos = ++pos % lenght;
