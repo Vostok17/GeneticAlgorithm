@@ -52,7 +52,7 @@ namespace Genetic_algorithm
         }
         public void Start()
         {
-            
+
         }
         private Path PartiallyMappedCrossover(Path father, Path mother)
         {
@@ -132,6 +132,41 @@ namespace Genetic_algorithm
 
             return new Path(child, distance);
         }
+        private Path OrderedCrossover(Path father, Path mother)
+        {
+            int lenght = father.Chromosome.Length;
+            int[] child = new int[lenght];
+
+            Random random = new();
+            int crossPoint1 = random.Next(0, lenght);
+            int crossPoint2 = random.Next(0, lenght);
+
+            if (crossPoint1 > crossPoint2)
+            {
+                int temp = crossPoint1;
+                crossPoint1 = crossPoint2;
+                crossPoint2 = temp;
+            }
+
+            int[] map = Map(father.Chromosome);
+            for (int i = crossPoint1; i <= crossPoint2; i++)
+            {
+                child[i] = father[i];
+            }
+
+            int pos = crossPoint2 + 1;
+            foreach (int item in mother.Chromosome)
+            {
+                int index = map[item];
+                if (index < crossPoint1 || index > crossPoint2)
+                {
+                    child[pos] = item;
+                    pos = ++pos % lenght;
+                }
+            }
+
+            return new Path(child, distance);
+        }
         private Path RouletteWheelSelection()
         {
             int summary = 0;
@@ -163,6 +198,22 @@ namespace Genetic_algorithm
             int temp = path[first];
             path[first] = path[second];
             path[second] = temp;
+        }
+        /// <summary>
+        /// Map stores indexes of cities in chromosome. 
+        /// map[city] = index.
+        /// </summary>
+        /// <param name="chromosome"></param>
+        /// <returns></returns>
+        private int[] Map(int[] chromosome)
+        {
+            int lenght = chromosome.Length;
+            int[] map = new int[lenght];
+            for (int i = 0; i < lenght; i++)
+            {
+                map[chromosome[i]] = i;
+            }
+            return map;
         }
     }
 }
