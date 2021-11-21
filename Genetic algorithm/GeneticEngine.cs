@@ -15,8 +15,7 @@ namespace Genetic_algorithm
         {
             this.distance = distance;
             generation = CreateGeneration();
-
-            Selection();
+            Start();
         }
         private Path[] CreateGeneration()
         {
@@ -33,7 +32,7 @@ namespace Genetic_algorithm
         private int[] RandomChromosome(int lenght)
         {
             int[] chromosome = new int[lenght];
-            
+
             List<int> possibleWays = new();
             for (int i = 0; i < lenght; i++)
             {
@@ -51,7 +50,7 @@ namespace Genetic_algorithm
 
             return chromosome;
         }
-        private void Selection()
+        public void Start()
         {
             
         }
@@ -91,9 +90,44 @@ namespace Genetic_algorithm
                 child[indexOfCity] = child[i];
                 child[i] = temp;
                 // swap indexes in the map 
-                temp = map[child[indexOfCity]]; 
+                temp = map[child[indexOfCity]];
                 map[child[indexOfCity]] = map[child[i]];
                 map[child[i]] = temp;
+            }
+
+            return new Path(child, distance);
+        }
+        private Path CycleCrossover(Path father, Path mother) // can give the same offspring for some parents
+        {
+            int lenght = father.Chromosome.Length;
+            int[] child = new int[lenght];
+            for (int k = 0; k < lenght; k++)
+            {
+                child[k] = -1; // unused vertex
+            }
+
+            // map stores indexes of cities in father
+            // father[index] = city
+            // map[city] = index
+            int[] map = new int[lenght];
+            for (int k = 0; k < lenght; k++)
+            {
+                map[father[k]] = k;
+            }
+
+            int i = 0;
+            child[i] = father[i];
+            do
+            {
+                int j = map[mother[i]];
+                child[j] = father[j];
+                i = j;
+            } while (mother[i] != child[0]);
+
+            // for all unused vertexes
+            for (int k = 0; k < lenght; k++)
+            {
+                if (child[k] == -1) child[k] = mother[k];
             }
 
             return new Path(child, distance);
@@ -106,7 +140,7 @@ namespace Genetic_algorithm
                 summary += path.Fitness;
             }
             Random random = new();
-            
+
             int randomNumber = random.Next(summary + 1);
             int currFitness = 0;
             foreach (Path path in generation)
@@ -118,6 +152,17 @@ namespace Genetic_algorithm
                 }
             }
             throw new Exception("No path was chosen in roulette wheel selection.");
+        }
+        private void ExchangeMutation(Path path)
+        {
+            Random random = new();
+            int chromosomeLenght = path.Chromosome.Length;
+            int first = random.Next(chromosomeLenght);
+            int second = random.Next(chromosomeLenght);
+
+            int temp = path[first];
+            path[first] = path[second];
+            path[second] = temp;
         }
     }
 }

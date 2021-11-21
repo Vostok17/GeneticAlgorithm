@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Genetic_algorithm
 {
-    internal class Path
+    internal class Path: IComparable<Path>
     {
         public int[] Chromosome;
         public int Fitness;
@@ -36,6 +36,11 @@ namespace Genetic_algorithm
             valueOfPath += distance[last, start];
 
             return valueOfPath;
+        }
+
+        public int CompareTo(Path other)
+        {
+            return Fitness.CompareTo(other.Fitness);
         }
     }
 }
