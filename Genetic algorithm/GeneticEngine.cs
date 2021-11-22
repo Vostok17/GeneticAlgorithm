@@ -51,8 +51,7 @@ namespace Genetic_algorithm
         public void Start()
         {
             generation = CreateGeneration();
-            Path path = new Path(RandomChromosome(6), distance);
-
+            
         }
         private Path PartiallyMappedCrossover(Path father, Path mother)
         {
@@ -229,6 +228,32 @@ namespace Genetic_algorithm
                 temp[i] = path[crossPoint + lenght - 1 - i];
             }
             temp.CopyTo(path.Chromosome, 0);
+        }
+        private void ReverseMutation(Path path)
+        {
+            int lenght = path.Chromosome.Length;
+
+            Random random = new();
+            int point1 = random.Next(0, lenght);
+            int point2 = random.Next(0, lenght);
+
+            if (point1 > point2)
+            {
+                int temp = point1;
+                point1 = point2;
+                point2 = temp;
+            }
+
+            int[] tmp = new int[lenght];
+            path.Chromosome.CopyTo(tmp, 0);
+
+            int centre = point1 + point2 / 2;
+            for (int i = point1; i < centre; i++)
+            {
+                int temp = path[i];
+                path[i] = path[point1 + point2 - i];
+                path[point1 + point2 - i] = temp;
+            }
         }
         /// <summary>
         /// Map stores indexes of cities in chromosome. 
