@@ -14,8 +14,6 @@ namespace Genetic_algorithm
         public GeneticEngine(Graph distance)
         {
             this.distance = distance;
-            generation = CreateGeneration();
-            Start();
         }
         private Path[] CreateGeneration()
         {
@@ -52,6 +50,8 @@ namespace Genetic_algorithm
         }
         public void Start()
         {
+            generation = CreateGeneration();
+            Path path = new Path(RandomChromosome(6), distance);
 
         }
         private Path PartiallyMappedCrossover(Path father, Path mother)
@@ -174,16 +174,61 @@ namespace Genetic_algorithm
             }
             throw new Exception("No path was chosen in roulette wheel selection.");
         }
+        private Path TournamentSelection(int index)
+        {
+            const int lenght = 3; // subgroup count
+            Path best = new Path() { Fitness = int.MaxValue };
+
+            if (index + lenght >= generationSize)
+            {
+                for (int i = index; i < generationSize; i++)
+                {
+                    if (best.Fitness < generation[i].Fitness) best = generation[i];
+                }
+                return best;
+            }
+
+            for (int i = index; i < index + lenght; i++)
+            {
+                if (best.Fitness < generation[i].Fitness) best = generation[i];
+            }
+            return best;
+        }
         private void ExchangeMutation(Path path)
         {
             Random random = new();
             int chromosomeLenght = path.Chromosome.Length;
-            int first = random.Next(chromosomeLenght);
-            int second = random.Next(chromosomeLenght);
+
+            int first, second;
+            do
+            {
+                first = random.Next(chromosomeLenght);
+                second = random.Next(chromosomeLenght);
+            } while (first == second);
 
             int temp = path[first];
             path[first] = path[second];
             path[second] = temp;
+        }
+        private void CentreInverseMutation(Path path)
+        {
+            int lenght = path.Chromosome.Length;
+            Random random = new();
+            int crossPoint = random.Next(1, lenght - 1); // do not use first and last
+
+            crossPoint = 2;
+            int[] temp = new int[lenght];
+            // [0; crossPoint)
+            for (int i = 0; i < crossPoint; i++)
+            {
+                temp[i] = path[crossPoint - 1 - i];
+            }
+            // [crossPoint; lenght - 1]
+            for (int i = crossPoint; i < lenght; i++)
+            {
+                temp[i] = path[crossPoint + lenght - 1 - i];
+            }
+            temp.CopyTo(path.Chromosome, 0);
         }
         /// <summary>
         /// Map stores indexes of cities in chromosome. 
@@ -191,7 +236,7 @@ namespace Genetic_algorithm
         /// </summary>
         /// <param name="chromosome"></param>
         /// <returns></returns>
-        private int[] Map(int[] chromosome)
+        private static int[] Map(int[] chromosome)
         {
             int lenght = chromosome.Length;
             int[] map = new int[lenght];

@@ -21,6 +21,7 @@ namespace Genetic_algorithm
             Chromosome = chromosome;
             Fitness = FitnessFunction(distance);
         }
+        public Path() { }
         public int FitnessFunction(Graph distance)
         {
             int valueOfPath = 0;

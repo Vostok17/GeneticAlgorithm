@@ -11,9 +11,10 @@ namespace Genetic_algorithm
 
             Graph graph = new Graph(SIZE);
             graph.Fill(MIN, MAX);
-            Console.WriteLine(graph.UndirectedLinesPercentage());
+            //Console.WriteLine(graph.UndirectedLinesPercentage());
 
-            GeneticEngine engine = new GeneticEngine(graph); 
+            GeneticEngine geneticEngine = new GeneticEngine(graph); 
+            geneticEngine.Start();
 
             Console.ReadKey();
         }
