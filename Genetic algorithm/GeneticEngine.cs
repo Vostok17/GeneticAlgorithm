@@ -10,10 +10,13 @@ namespace Genetic_algorithm
     {
         private Path[] generation;
         private const int generationSize = 100;
+        private const int iterations = 10000;
         private readonly Graph distance;
+        public Path best;
         public GeneticEngine(Graph distance)
         {
             this.distance = distance;
+            best = new Path() { Fitness = int.MaxValue };
         }
         private Path[] CreateGeneration()
         {
@@ -51,7 +54,26 @@ namespace Genetic_algorithm
         public void Start()
         {
             generation = CreateGeneration();
-            
+            Array.Sort(generation);
+
+            for (int i = 0; i < iterations; i++)
+            {
+                Path father = generation[0];
+                Path mother = RouletteWheelSelection();
+
+                Path child = PartiallyMappedCrossover(father, mother);
+                ExchangeMutation(child);
+                LocalImprovement1(child);
+
+                Path worst = generation[generationSize - 1];
+                if (child.Fitness < worst.Fitness)
+                {
+                    generation[generationSize - 1] = child;
+                }
+                Array.Sort(generation);
+
+                Console.WriteLine($"{i}. {generation[0].Fitness}");
+            }
         }
         private Path PartiallyMappedCrossover(Path father, Path mother)
         {
@@ -173,26 +195,6 @@ namespace Genetic_algorithm
             }
             throw new Exception("No path was chosen in roulette wheel selection.");
         }
-        private Path TournamentSelection(int index)
-        {
-            const int lenght = 3; // subgroup count
-            Path best = new Path() { Fitness = int.MaxValue };
-
-            if (index + lenght >= generationSize)
-            {
-                for (int i = index; i < generationSize; i++)
-                {
-                    if (best.Fitness < generation[i].Fitness) best = generation[i];
-                }
-                return best;
-            }
-
-            for (int i = index; i < index + lenght; i++)
-            {
-                if (best.Fitness < generation[i].Fitness) best = generation[i];
-            }
-            return best;
-        }
         private void ExchangeMutation(Path path)
         {
             Random random = new();
@@ -208,6 +210,8 @@ namespace Genetic_algorithm
             int temp = path[first];
             path[first] = path[second];
             path[second] = temp;
+
+            path.UpdateFitness(distance);
         }
         private void CentreInverseMutation(Path path)
         {
@@ -228,6 +232,7 @@ namespace Genetic_algorithm
                 temp[i] = path[crossPoint + lenght - 1 - i];
             }
             temp.CopyTo(path.Chromosome, 0);
+            path.UpdateFitness(distance);
         }
         private void ReverseMutation(Path path)
         {
@@ -247,12 +252,74 @@ namespace Genetic_algorithm
             int[] tmp = new int[lenght];
             path.Chromosome.CopyTo(tmp, 0);
 
-            int centre = point1 + point2 / 2;
+            int centre = point1 + (point2 - point1) / 2;
             for (int i = point1; i < centre; i++)
             {
                 int temp = path[i];
                 path[i] = path[point1 + point2 - i];
                 path[point1 + point2 - i] = temp;
+            }
+
+            path.UpdateFitness(distance);
+        }
+        private void LocalImprovement1(Path path)
+        {
+            // find longest distance between vertexes
+            int index = 0;
+            int max = int.MinValue;
+            for (int i = 0; i < path.Chromosome.Length - 1; i++)
+            {
+                int curr = distance[path[i], path[i + 1]];
+                if (curr > max)
+                {
+                    max = curr;
+                    index = i;
+                }
+            }
+            // find nearest vertex
+            int min = int.MaxValue;
+            int vertex = -1;
+            for (int i = 0; i < path.Chromosome.Length; i++)
+            {
+                if (i != index && distance[path[index], path[i]] < min)
+                {
+                    min = distance[path[index], path[i]];
+                    vertex = i;
+                }
+            }
+            // swap
+            int indexOfVertex = Array.IndexOf(path.Chromosome, vertex);
+            int temp = path[index + 1];
+            path[index + 1] = path[indexOfVertex];
+            path[indexOfVertex] = temp;
+            // check
+            int previousFitness = path.Fitness;
+            path.UpdateFitness(distance);
+            if (path.Fitness > previousFitness)
+            {
+                // swap back
+                temp = path[index + 1];
+                path[index + 1] = path[indexOfVertex];
+                path[indexOfVertex] = temp;
+                path.Fitness = previousFitness;
+            }
+        }
+        private void LocalImprovement2(Path path)
+        {
+            for (int i = 2; i < path.Chromosome.Length - 2; i++) // do not swap first and last
+            {
+                // 1 2 3 4
+                int primary = distance[path[i - 1], path[i]] + distance[path[i], path[i + 1]] + distance[path[i + 1], path[i + 2]];
+                // 1 3 2 4
+                int swapped = distance[path[i - 1], path[i + 1]] + distance[path[i + 1], path[i]] + distance[path[i], path[i + 2]];
+                if (swapped < primary)
+                {
+                    path.Fitness = path.Fitness - primary + swapped;
+                    int temp = path[i];
+                    path[i] = path[i + 1];
+                    path[i + 1] = temp;
+                    break;
+                }
             }
         }
         /// <summary>

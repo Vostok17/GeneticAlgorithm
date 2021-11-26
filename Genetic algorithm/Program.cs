@@ -6,12 +6,12 @@ namespace Genetic_algorithm
     {
         static void Main(string[] args)
         {
-            const int SIZE = 6;
-            const int MIN = 5, MAX = 50;
+            const int SIZE = 300;
 
             Graph graph = new Graph(SIZE);
-            graph.Fill(MIN, MAX);
-            //Console.WriteLine(graph.UndirectedLinesPercentage());
+            graph.Read(@"C:\Users\Artem\Desktop\ПА\Lab4\Genetic algorithm\graph.dat");
+
+            Console.WriteLine(graph.UndirectedLinesPercentage());
 
             GeneticEngine geneticEngine = new GeneticEngine(graph); 
             geneticEngine.Start();
