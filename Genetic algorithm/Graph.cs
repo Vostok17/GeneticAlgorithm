@@ -27,7 +27,7 @@ namespace Genetic_algorithm
         {
             Read(path);
         }
-        private void Read(string path)
+        public void Read(string path)
         {
             using StreamReader sr = new StreamReader(path);
             Size = Convert.ToInt32(sr.ReadLine());

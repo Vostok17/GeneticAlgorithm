@@ -22,7 +22,7 @@ namespace Genetic_algorithm
             Fitness = FitnessFunction(distance);
         }
         public Path() { }
-        public int FitnessFunction(Graph distance)
+        private int FitnessFunction(Graph distance)
         {
             int valueOfPath = 0;
             for (int i = 1; i < distance.Size; i++)
@@ -38,7 +38,31 @@ namespace Genetic_algorithm
 
             return valueOfPath;
         }
+        public void Change(int[] chromosome, int fitness)
+        {
+            Chromosome = chromosome;
+            Fitness = fitness;
+        }
+        public static int Evaluate(int[] chromosome, Graph distance)
+        {
+            int valueOfPath = 0;
+            for (int i = 1; i < distance.Size; i++)
+            {
+                int curr = chromosome[i - 1];
+                int next = chromosome[i];
+                valueOfPath += distance[curr, next];
+            }
+            // Return to start
+            int last = chromosome[distance.Size - 1];
+            int start = chromosome[0];
+            valueOfPath += distance[last, start];
 
+            return valueOfPath;
+        }
+        public void UpdateFitness(Graph distance)
+        {
+            Fitness = FitnessFunction(distance);
+        }
         public int CompareTo(Path other)
         {
             return Fitness.CompareTo(other.Fitness);
