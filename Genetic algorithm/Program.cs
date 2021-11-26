@@ -15,6 +15,7 @@ namespace Genetic_algorithm
 
             GeneticEngine geneticEngine = new GeneticEngine(graph); 
             geneticEngine.Start();
+            geneticEngine.ShowResult();
 
             Console.ReadKey();
         }

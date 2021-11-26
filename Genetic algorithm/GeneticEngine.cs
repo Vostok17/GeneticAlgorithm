@@ -15,7 +15,7 @@ namespace Genetic_algorithm
         
         private readonly CrossingType crossingType = CrossingType.PartiallyMapped;
         private readonly MutationType mutationType = MutationType.Exchange;
-        private readonly LocalImprovements localImprovement = LocalImprovements.LocalImprovement1;
+        private readonly LocalImprovements localImprovement = LocalImprovements.LocalImprovement2;
         public GeneticEngine(Graph distance)
         {
             this.distance = distance;
@@ -74,8 +74,9 @@ namespace Genetic_algorithm
                 }
                 Array.Sort(generation);
 
-                Console.WriteLine($"{i}. {generation[0].Fitness}");
+                if (i % 50 == 0) Console.WriteLine($"{i, 5}. {generation[0].Fitness}");
             }
+            Console.WriteLine($"{iterations,5}. {generation[0].Fitness}");
         }
         private Path Crossover(Path father, Path mother)
         {
@@ -191,8 +192,8 @@ namespace Genetic_algorithm
             int[] child = new int[lenght];
 
             Random random = new();
-            int crossPoint1 = random.Next(0, lenght);
-            int crossPoint2 = random.Next(0, lenght);
+            int crossPoint1 = random.Next(0, lenght - 1);
+            int crossPoint2 = random.Next(0, lenght - 1);
 
             if (crossPoint1 > crossPoint2)
             {
@@ -383,6 +384,17 @@ namespace Genetic_algorithm
                 map[chromosome[i]] = i;
             }
             return map;
+        }
+        public void ShowResult()
+        {
+            Path best = generation[0];
+            Console.WriteLine(new string('-', 50));
+            Console.WriteLine("Best path lenght is {0}", best.Fitness);
+            for (int i = 0; i < best.Chromosome.Length; i++)
+            {
+                Console.Write($"{best[i]} -> ");
+            }
+            Console.Write($"{best[0]}.\n");
         }
     }
 }
