@@ -12,11 +12,13 @@ namespace Genetic_algorithm
         private const int generationSize = 100;
         private const int iterations = 10000;
         private readonly Graph distance;
-        public Path best;
+        
+        private readonly CrossingType crossingType = CrossingType.PartiallyMapped;
+        private readonly MutationType mutationType = MutationType.Exchange;
+        private readonly LocalImprovements localImprovement = LocalImprovements.LocalImprovement1;
         public GeneticEngine(Graph distance)
         {
             this.distance = distance;
-            best = new Path() { Fitness = int.MaxValue };
         }
         private Path[] CreateGeneration()
         {
@@ -61,9 +63,9 @@ namespace Genetic_algorithm
                 Path father = generation[0];
                 Path mother = RouletteWheelSelection();
 
-                Path child = PartiallyMappedCrossover(father, mother);
-                ExchangeMutation(child);
-                LocalImprovement1(child);
+                Path child = Crossover(father, mother);
+                Mutation(child);
+                LocalImprovement(child);
 
                 Path worst = generation[generationSize - 1];
                 if (child.Fitness < worst.Fitness)
@@ -73,6 +75,50 @@ namespace Genetic_algorithm
                 Array.Sort(generation);
 
                 Console.WriteLine($"{i}. {generation[0].Fitness}");
+            }
+        }
+        private Path Crossover(Path father, Path mother)
+        {
+            switch(crossingType)
+            {
+                case CrossingType.PartiallyMapped:
+                    return PartiallyMappedCrossover(father, mother);
+                case CrossingType.Ordered:
+                    return OrderedCrossover(father, mother);
+                case CrossingType.Cycle:
+                    return CycleCrossover(father, mother);
+                default: throw new ArgumentException("Crossing type was not chosen.");
+            }
+        }
+        private void Mutation(Path path)
+        {
+            switch (mutationType)
+            {
+                case MutationType.Exchange:
+                    ExchangeMutation(path);
+                    break;
+                case MutationType.CentreInverse:
+                    CentreInverseMutation(path);
+                    break;
+                case MutationType.Reverse:
+                    ReverseMutation(path);
+                    break;
+                default:
+                    throw new ArgumentException("Mutation type was not chosen.");
+            }
+        }
+        private void LocalImprovement(Path path)
+        {
+            switch (localImprovement)
+            {
+                case LocalImprovements.LocalImprovement1:
+                    LocalImprovement1(path);
+                    break;
+                case LocalImprovements.LocalImprovement2:
+                    LocalImprovement2(path);
+                    break;
+                default:
+                    throw new ArgumentException("Local improvement was not chosen.");
             }
         }
         private Path PartiallyMappedCrossover(Path father, Path mother)
